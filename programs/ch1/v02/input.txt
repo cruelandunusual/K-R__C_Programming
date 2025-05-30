@@ -1,0 +1,1 @@
+This is a sentence that will test my histogram program; it has a few short words as well as a few longer ones, such as extravagantly and everlasting.

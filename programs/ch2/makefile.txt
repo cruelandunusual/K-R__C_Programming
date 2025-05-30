@@ -1,0 +1,7 @@
+# build an executable named myprog from myprog.c
+all: CPROG_ex2-3_hex_to_integer.c
+	gcc -g -Wall -o CPROG_ex2-3_hex_to_integer CPROG_ex2-3_hex_to_integer.c
+clean:
+	$(RM) CPROG_ex2-3_hex_to_integer
+run:
+	./CPROG_ex2-3_hex_to_integer

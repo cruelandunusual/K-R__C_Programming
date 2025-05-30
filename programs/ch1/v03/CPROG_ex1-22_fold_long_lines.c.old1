@@ -1,0 +1,171 @@
+#include <stdio.h>
+
+#define WORD  1
+#define BLANK 0
+#define MAXLINE 1000
+#define SPLIT 30
+
+#define SPACES_IN_TABS 4
+#define ALPHA 0
+#define TAB   1
+#define COLUMNS_IN_TAB_STOPS 80
+
+
+int PMS_getline(char line[], int max_len);
+void copy(char from[], char to[]);
+void replace_chars_in_string(char line[], char search_char, char replace_char);
+int find_last_alphanumeric_char(char line[], int pos);
+void insert_char_at_index(char line[], char insert_char, int index);
+void replace_char_at_index(char line[], char replace_char, int index);
+void fold_line(char line[], int position);
+
+
+main()
+{
+    char line[MAXLINE];
+    int len = 0;
+    int sp = 0;
+    int split_multiplier = 0;
+    while ((len = PMS_getline(line, MAXLINE)) > 0) { // while there's input
+	if (len > SPLIT) {
+	    split_multiplier = len / SPLIT;
+	    sp = find_last_alphanumeric_char(line, SPLIT);
+	    if (line[sp] != '\0') {
+		fold_line(line, sp);
+	    }
+	}
+	printf("%s", line);
+    }
+}
+
+/*
+  PMS_getline: gets a line of text from input, stores in line[];
+  returns the int length of line[]
+*/
+int PMS_getline(char line[], int max_len)
+{
+    int i, c;
+    for (i = 0; i < max_len - 1 && (c = getchar()) != EOF && c != '\n'; ++i) {
+	line[i] = c;
+    }
+    if (c == '\n') {
+	line[i++] = c;
+    }
+
+    line[i] = '\0';
+    return i;
+}
+
+/*
+  find_last_alphanumeric_char: returns the position
+  of the first tab or blank char that occurs after the last
+  non-blank character before pos;
+  if no blanks are found, returns the position of the char at pos-1,
+ */
+int find_last_alphanumeric_char(char line[], int pos)
+{
+
+    int index;
+    int spaces = 0;
+    for (index = 0; index < pos-1; ++index) {
+	if (line[index] == ' ' || line[index] == '\t') {
+	    ++spaces;
+	}
+	else spaces = 0;
+    }
+    if (spaces > 0) {
+	index = index - spaces;
+    }
+    return index;
+    
+}
+
+/*
+  copy: copies from[] to to[];
+  assumes to[] is large enough
+*/
+void copy(char from[], char to[])
+{
+
+    int i;
+    i = 0;
+    while ((to[i] = from[i]) != '\0') {
+	++i;
+    }
+}
+
+void fold_line(char line[], int position)
+{
+
+    char tempstring[MAXLINE + (MAXLINE / SPLIT)];
+    int i, j;
+
+    for (i = 0, j = 0; i < position; ++i) {
+	tempstring[i] = line[i];
+    }
+    if (line[position] == '\0') { /* not sure I need this here, now that I'm testing in main() */
+	tempstring[position] = line[position]; /* copies \0 into tempstring */
+	copy(tempstring, line);
+	return;
+    }
+    else if (line[position] == ' ' || line[position] == '\t') {
+	replace_char_at_index(tempstring, '\n', position);
+	j = position + 1;
+	i = position + 1;
+    }
+    else { //(line[position] == ALPHANUMERIC) { // what is ALPHANUMERIC?
+	insert_char_at_index(tempstring, '-', position);
+	insert_char_at_index(tempstring, '\n', position++);
+	j = position + 2;
+    }
+
+    for ( ; line[i] != '\0'; ++i, ++j) {
+	tempstring[j] = line[i];
+    }
+    tempstring[j] = line[i];
+    copy(tempstring, line);
+}
+
+void insert_char_at_index(char line[], char insert_char, int index) {
+    line[index] = insert_char;
+}
+
+void replace_char_at_index(char line[], char replace_char, int index) {
+    line[index] = replace_char;
+}
+
+
+
+/*  */
+
+
+/*
+  replace_chars_in_string: creates a temporary char array with MAXLINE elements,
+  which is assumed to be sufficient for replacing tabs with spaces.
+  This works but is basically only suitable for replacing search_char with tabs,
+  so was replaced with entab. I kept the code for posterity.
+*/
+void replace_chars_in_string(char line[], char search_char, char replace_char)
+{
+    char tempstring[MAXLINE];
+    
+    int i;			/* for-loop index variable */
+    int numtabs;		/* will be incremented by three */
+    numtabs = 0;
+    int spaces;			/* while-loop counter */
+    
+    for (i = 0; line[i] != '\0'; ++i) {
+	if (line[i] == search_char) {
+	    spaces = 0;
+	    while (spaces < SPACES_IN_TABS) {
+		tempstring[i + spaces + numtabs] = replace_char;
+		++spaces;
+	    }
+	    numtabs += (SPACES_IN_TABS - 1);
+	}
+	else tempstring[i + numtabs] = line[i];
+    }
+    tempstring[i + numtabs] = line[i]; /* copies \0 into tempstring */
+
+    copy(tempstring, line);
+}

@@ -1,0 +1,7 @@
+Hello, I am writing this text in order****
+that one day I may count the characters.*****
+Here is some meaningless***drivel to pad it out.*
+There is no**god.***
+are
+Here's a really long line to prove my program actually works. Hopefully this line will be longer than 100. Not sure though, but it's worth a shot.
+Here's a really long line to prove my program actually works. Hopefully this line will be longer than 100. Not sure though.
